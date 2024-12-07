@@ -38,8 +38,6 @@ repositories {
     jcenter()
     maven { url 'http://repo.spring.io/release' }
     maven { url 'https://packages.confluent.io/maven/' }
-    maven { url 'https://artifactory.rivigo.com/artifactory/libs-release-local' }
-    maven { url 'https://artifactory.rivigo.com/artifactory/libs-snapshot-local' }
 }
 
 ext {

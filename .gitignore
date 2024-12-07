@@ -35,7 +35,3 @@ sonar-project.properties~
 
 ### Docker ###
 postgres_db
-
-### Rivigo git hooks ###
-./git-hooks
-*.hprof
