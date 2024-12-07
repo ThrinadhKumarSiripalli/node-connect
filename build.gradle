@@ -3,7 +3,6 @@ buildscript {
         springBootVersion = '2.1.4.RELEASE'
         spotlessVersion = '3.25.0'
         sonarqubeVersion = '2.7'
-        flywayVersion = '7.2.0'
     }
     repositories {
         mavenCentral()
@@ -14,7 +13,6 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("com.diffplug.spotless:spotless-plugin-gradle:${spotlessVersion}")
         classpath("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonarqubeVersion}")
-        classpath ("gradle.plugin.org.flywaydb:gradle-plugin-publishing:${flywayVersion}")
     }
 }
 
@@ -26,7 +24,6 @@ apply plugin: 'maven'
 apply plugin: 'jacoco'
 apply plugin: 'org.sonarqube'
 apply plugin: 'com.diffplug.gradle.spotless'
-apply plugin: 'org.flywaydb.flyway'
 
 group = 'com.facets.cloud'
 version = '0.0.1-SNAPSHOT'
@@ -43,7 +40,6 @@ repositories {
 ext {
     swaggerV = '2.9.2'
     validationV = '2.0.1.Final'
-    flywayV = '5.2.4'
     jcabiV = "0.22.6"
     jjwtV = '0.10.5'
     jwtV = '3.5.0'
@@ -84,7 +80,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework:spring-test'
     implementation "javax.validation:validation-api:${validationV}"
-    implementation "org.flywaydb:flyway-core:${flywayV}"
     implementation "org.postgresql:postgresql:${postgresV}"
     implementation "org.projectlombok:lombok:${lombokV}"
     implementation "com.jcabi:jcabi-aspects:${jcabiV}"
