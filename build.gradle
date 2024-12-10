@@ -76,8 +76,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework:spring-test'
     implementation "javax.validation:validation-api:${validationV}"
     implementation "org.postgresql:postgresql:${postgresV}"
@@ -91,13 +89,13 @@ dependencies {
     implementation "org.apache.poi:poi-ooxml:${apachePoiV}"
     implementation "commons-io:commons-io:${commonsIoV}"
     implementation "com.vladmihalcea:hibernate-types-52:${hibernateTypesV}"
-    testImplementation "org.projectlombok:lombok:${lombokV}"
     annotationProcessor "org.projectlombok:lombok:${lombokV}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokV}"
-    implementation "com.jcraft:jsch:${jschV}"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonV}"
-    testImplementation "com.opentable.components:otj-pg-embedded:${otjPgEmbeddedV}"
-    testImplementation "org.testcontainers:postgresql:${pgTestContainerV}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.0-M1"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+    testImplementation "org.testcontainers:testcontainers:1.15.2"
+    testImplementation "org.testcontainers:postgresql:1.15.2"
 }
 
 /* 2. Spotless config */

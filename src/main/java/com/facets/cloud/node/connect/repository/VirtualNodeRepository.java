@@ -3,7 +3,6 @@ package com.facets.cloud.node.connect.repository;
 import com.facets.cloud.node.connect.model.VirtualNode;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VirtualNodeRepository extends JpaRepository<VirtualNode, Long> {
@@ -14,5 +13,6 @@ public interface VirtualNodeRepository extends JpaRepository<VirtualNode, Long> 
 
   Optional<VirtualNode> findByNameAndIsActive(String name, boolean isActive);
 
-  List<VirtualNode> findByReportsToVirtualNodeIdAndIsActive(Long reportsToVirtualNodeId, Boolean isActive);
+  List<VirtualNode> findByReportsToVirtualNodeIdAndIsActive(
+      Long reportsToVirtualNodeId, Boolean isActive);
 }
