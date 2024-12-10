@@ -40,76 +40,55 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
             virtualNodeConnectionDTO.getConnectionGroupName(), Boolean.TRUE);
     validateNodes(virtualNodeConnectionDTO);
     virtualNodeConnectionDTO.setVirtualNodeDTO(
-        persistVirtualNodes(
+        persistVirtualNodeHierarchy(
             connectionGroupDTO.getId(), null, virtualNodeConnectionDTO.getVirtualNodeDTO()));
     return virtualNodeConnectionDTO;
   }
 
   private void validateNodes(VirtualNodeConnectionDTO virtualNodeConnectionDTO) {
-    List<String> names = new ArrayList<>();
-    names = getNames(virtualNodeConnectionDTO.getVirtualNodeDTO(), names);
-    List<VirtualNode> virtualNodes =
+    List<String> names = getNames(virtualNodeConnectionDTO.getVirtualNodeDTO(), new ArrayList<>());
+    List<VirtualNode> existingNodes =
         virtualNodeRepository.findByNameInAndIsActive(names, Boolean.TRUE);
-    if (!CollectionUtils.isEmpty(virtualNodes)) {
+    if (!CollectionUtils.isEmpty(existingNodes)) {
       throw new CustomNodeException(
           "Virtual Nodes already exists with the names: "
-              + virtualNodes.stream().map(VirtualNode::getName).collect(Collectors.toList()));
+              + existingNodes.stream().map(VirtualNode::getName).collect(Collectors.toList()));
     }
   }
 
-  private VirtualNodeDTO persistVirtualNodes(
+  private VirtualNodeDTO persistVirtualNodeHierarchy(
       Long connectionGroupId, Long reportsToVirtualNodeId, VirtualNodeDTO virtualNodeDTO) {
     if (virtualNodeDTO == null) {
       return null;
     }
     VirtualNode virtualNode = virtualNodeConverter.convertTo(virtualNodeDTO);
     virtualNode.setConnectionGroupId(connectionGroupId);
-    if (reportsToVirtualNodeId != null) {
-      virtualNode.setReportsToVirtualNodeId(reportsToVirtualNodeId);
-    }
-    virtualNode = virtualNodeRepository.save(virtualNode);
+    virtualNode.setReportsToVirtualNodeId(reportsToVirtualNodeId);
+    VirtualNode savedNode = virtualNodeRepository.save(virtualNode);
     if (CollectionUtils.isEmpty(virtualNodeDTO.getVirtualNodeDTOList())) {
       return virtualNodeConverter.convertFrom(virtualNode);
     }
-    List<VirtualNodeDTO> childVirtualNodes =
-        persistVirtualNodes(
-            connectionGroupId, virtualNode.getId(), virtualNodeDTO.getVirtualNodeDTOList());
-    VirtualNodeDTO resultNodes = virtualNodeConverter.convertFrom(virtualNode);
-    if (!CollectionUtils.isEmpty(childVirtualNodes)) {
-      resultNodes.setVirtualNodeDTOList(childVirtualNodes);
-    }
-    return resultNodes;
-  }
-
-  private List<VirtualNodeDTO> persistVirtualNodes(
-      Long connectionGroupId,
-      Long reportsToVirtualNodeId,
-      List<VirtualNodeDTO> virtualNodeDTOList) {
-    if (CollectionUtils.isEmpty(virtualNodeDTOList)) {
-      return null;
-    }
-    List<VirtualNodeDTO> result = new ArrayList<>();
-    for (VirtualNodeDTO virtualNodeDTO : virtualNodeDTOList) {
-      VirtualNodeDTO persistedNode =
-          persistVirtualNodes(connectionGroupId, reportsToVirtualNodeId, virtualNodeDTO);
-      if (virtualNodeDTO != null) {
-        result.add(persistedNode);
-      }
-    }
-    return result;
+    List<VirtualNodeDTO> childNodes =
+        CollectionUtils.emptyIfNull(virtualNodeDTO.getVirtualNodeDTOList())
+            .stream()
+            .map(child -> persistVirtualNodeHierarchy(connectionGroupId, savedNode.getId(), child))
+            .collect(Collectors.toList());
+    VirtualNodeDTO resultNode = virtualNodeConverter.convertFrom(virtualNode);
+    resultNode.setVirtualNodeDTOList(childNodes);
+    return resultNode;
   }
 
   private List<String> getNames(VirtualNodeDTO virtualNodeDTO, List<String> names) {
     if (virtualNodeDTO == null) {
-      return new ArrayList<>();
+      return names;
     }
     if (virtualNodeDTO.getName() == null) {
       throw new CustomNodeException("Name is Mandatory for all the virtual Nodes.");
     }
     if (Boolean.FALSE.equals(virtualNodeDTO.getIsActive())) {
-      throw new CustomNodeException("Inactive Virtual Node addition is not available.");
+      throw new CustomNodeException("Inactive Virtual Node addition is not allowed.");
     }
-    names.add(virtualNodeDTO.getName());
+    names.add(virtualNodeDTO.getName().toLowerCase());
     if (!CollectionUtils.isEmpty(virtualNodeDTO.getVirtualNodeDTOList())) {
       virtualNodeDTO.getVirtualNodeDTOList().forEach(node -> getNames(node, names));
     }

@@ -133,12 +133,16 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public ConnectionGroupDTO getConnectionGroup(String name, Boolean isActive) {
-    log.info("get connection group request received with name {}", name);
+    if (name == null) {
+      throw new CustomNodeException("name cannot be empty");
+    }
+    log.info("get connection group request received with name {}", name.toLowerCase());
     Optional<ConnectionGroup> connectionGroupOptional;
     if (Boolean.TRUE.equals(isActive)) {
-      connectionGroupOptional = connectionGroupRepository.findByNameAndIsActive(name, Boolean.TRUE);
+      connectionGroupOptional =
+          connectionGroupRepository.findByNameAndIsActive(name.toLowerCase(), Boolean.TRUE);
     } else {
-      connectionGroupOptional = connectionGroupRepository.findByName(name);
+      connectionGroupOptional = connectionGroupRepository.findByName(name.toLowerCase());
     }
     if (!connectionGroupOptional.isPresent()) {
       throw new CustomNodeException("No Connection Group Exists with given name");
