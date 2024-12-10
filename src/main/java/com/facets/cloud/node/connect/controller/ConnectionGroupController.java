@@ -23,6 +23,11 @@ public class ConnectionGroupController {
 
   private final ConnectionGroupService connectionGroupService;
 
+  @GetMapping("/test")
+  public boolean testController() {
+    return Boolean.TRUE;
+  }
+
   @PostMapping
   public ConnectionGroupDTO createConnectionGroup(
       @RequestBody ConnectionGroupDTO connectionGroupDTO) {

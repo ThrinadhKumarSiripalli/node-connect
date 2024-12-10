@@ -22,12 +22,12 @@ public abstract class AbstractEntity {
   private Long id;
 
   @Column(name = "created_at", nullable = false, updatable = false)
-  @Type(type = "com.facets.cloud.node.connect.converter.LocalDateTimeAttributeConverter")
+  @Type(type = "com.facets.cloud.node.connect.converter.LocalDateTimeConverter")
   @CreatedDate
   private LocalDateTime createdAt;
 
   @Column(name = "last_updated_at", nullable = false)
-  @Type(type = "com.facets.cloud.node.connect.converter.LocalDateTimeAttributeConverter")
+  @Type(type = "com.facets.cloud.node.connect.converter.LocalDateTimeConverter")
   @LastModifiedDate
   private LocalDateTime lastUpdatedAt;
 

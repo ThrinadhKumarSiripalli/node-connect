@@ -1,11 +1,15 @@
 package com.facets.cloud.node.connect;
 
+import com.facets.cloud.node.connect.config.DatabaseConfig;
+import com.facets.cloud.node.connect.config.SecurityConfig;
+import com.facets.cloud.node.connect.config.WebConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-// @Import({ResourceConfig.class, DatabaseConfig.class, WebConfig.class, ServiceConfig.class})
+@Import({DatabaseConfig.class, WebConfig.class, SecurityConfig.class})
 @EntityScan("com.facets.cloud.node.connect.model")
 public class Application {
 
