@@ -110,8 +110,13 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
   }
 
   @Override
-  public ConnectionGroupDTO getConnectionGroup(Long id) {
-    Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findById(id);
+  public ConnectionGroupDTO getConnectionGroup(Long id, Boolean isActive) {
+    Optional<ConnectionGroup> connectionGroupOptional;
+    if (Boolean.TRUE.equals(isActive)) {
+      connectionGroupOptional = connectionGroupRepository.findByIdAndIsActive(id, Boolean.TRUE);
+    } else {
+      connectionGroupOptional = connectionGroupRepository.findById(id);
+    }
     if (!connectionGroupOptional.isPresent()) {
       throw new CustomNodeException("No Connection Group Exists with given id");
     }
@@ -119,8 +124,13 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
   }
 
   @Override
-  public ConnectionGroupDTO getConnectionGroup(String name) {
-    Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findByName(name);
+  public ConnectionGroupDTO getConnectionGroup(String name, Boolean isActive) {
+    Optional<ConnectionGroup> connectionGroupOptional;
+    if (Boolean.TRUE.equals(isActive)) {
+      connectionGroupOptional = connectionGroupRepository.findByNameAndIsActive(name, Boolean.TRUE);
+    } else {
+      connectionGroupOptional = connectionGroupRepository.findByName(name);
+    }
     if (!connectionGroupOptional.isPresent()) {
       throw new CustomNodeException("No Connection Group Exists with given name");
     }

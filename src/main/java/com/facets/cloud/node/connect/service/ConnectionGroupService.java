@@ -14,7 +14,7 @@ public interface ConnectionGroupService {
 
   Boolean deleteConnectionGroup(String name);
 
-  ConnectionGroupDTO getConnectionGroup(Long id);
+  ConnectionGroupDTO getConnectionGroup(Long id, Boolean isActive);
 
-  ConnectionGroupDTO getConnectionGroup(String name);
+  ConnectionGroupDTO getConnectionGroup(String name, Boolean isActive);
 }

@@ -66,12 +66,12 @@ public class ConnectionGroupController {
   @GetMapping(value = "", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public ConnectionGroupDTO getConnectionGroup(@RequestParam Long id) {
-    return connectionGroupService.getConnectionGroup(id);
+    return connectionGroupService.getConnectionGroup(id, null);
   }
 
   @GetMapping(value = "/{name}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public ConnectionGroupDTO getConnectionGroup(@PathVariable(name = "name") String name) {
-    return connectionGroupService.getConnectionGroup(name);
+    return connectionGroupService.getConnectionGroup(name, null);
   }
 }

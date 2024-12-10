@@ -8,4 +8,6 @@ public interface ConnectionGroupRepository extends JpaRepository<ConnectionGroup
   Optional<ConnectionGroup> findByNameAndIsActive(String name, boolean isActive);
 
   Optional<ConnectionGroup> findByName(String name);
+
+  Optional<ConnectionGroup> findByIdAndIsActive(Long id, boolean isActive);
 }

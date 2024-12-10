@@ -16,6 +16,7 @@ CREATE TABLE virtual_node
     connection_group_id        bigint       NOT NULL,
     is_active                  SMALLINT     NOT NULL,
     created_at                 bigint       NOT NULL,
-    last_updated_at            bigint       NOT NULL,
-    CONSTRAINT idx_virtual_node_name UNIQUE (name)
+    last_updated_at bigint NOT NULL
 );
+
+CREATE INDEX idx_virtual_node_name ON virtual_node (name);
