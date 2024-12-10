@@ -17,7 +17,10 @@ public class ConnectionGroupConverter {
     if (connectionGroupDTO == null) {
       return null;
     }
-    return objectMapper.convertValue(connectionGroupDTO, ConnectionGroup.class);
+    ConnectionGroup connectionGroup =
+        objectMapper.convertValue(connectionGroupDTO, ConnectionGroup.class);
+    connectionGroup.setName(connectionGroup.getName().toLowerCase());
+    return connectionGroup;
   }
 
   public ConnectionGroupDTO convertFrom(ConnectionGroup connectionGroup) {

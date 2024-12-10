@@ -2,6 +2,7 @@ package com.facets.cloud.node.connect.service.impl;
 
 import com.facets.cloud.node.connect.converter.ConnectionGroupConverter;
 import com.facets.cloud.node.connect.dto.ConnectionGroupDTO;
+import com.facets.cloud.node.connect.exception.CustomNodeException;
 import com.facets.cloud.node.connect.model.ConnectionGroup;
 import com.facets.cloud.node.connect.repository.ConnectionGroupRepository;
 import com.facets.cloud.node.connect.service.ConnectionGroupService;
@@ -28,15 +29,17 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   private void validateConnectionGroupAddition(ConnectionGroupDTO connectionGroupDTO) {
     if (connectionGroupDTO.getId() != null) {
-      throw new IllegalArgumentException("Don't Provide Id while adding a new Connection Group.");
+      throw new CustomNodeException("Don't Provide Id while adding a new Connection Group.");
     }
     if (connectionGroupDTO.getName() == null) {
-      throw new IllegalArgumentException("Connection Group Name is Mandatory.");
+      throw new CustomNodeException("Connection Group Name is Mandatory.");
     }
     Optional<ConnectionGroup> connectionGroupOptional =
-        connectionGroupRepository.findByNameAndIsActive(connectionGroupDTO.getName(), Boolean.TRUE);
+        connectionGroupRepository.findByNameAndIsActive(
+            connectionGroupDTO.getName().toLowerCase(), Boolean.TRUE);
     if (connectionGroupOptional.isPresent()) {
-      throw new IllegalArgumentException("Connection Group already exists with this Name.");
+      throw new CustomNodeException(
+          "Connection Group already exists with Name: " + connectionGroupDTO.getName());
     }
   }
 
@@ -53,21 +56,21 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
   private void validateConnectionGroupUpdation(
       ConnectionGroupDTO connectionGroupDTO, Optional<ConnectionGroup> connectionGroupOptional) {
     if (!connectionGroupOptional.isPresent()) {
-      throw new IllegalArgumentException(
+      throw new CustomNodeException(
           "No Connection Group Present for this given id " + connectionGroupDTO.getId());
     }
     ConnectionGroup connectionGroup = connectionGroupOptional.get();
-    if (!connectionGroup.getName().equals(connectionGroupDTO.getName())) {
+    if (!connectionGroup.getName().equalsIgnoreCase(connectionGroupDTO.getName())) {
       Optional<ConnectionGroup> connectionGroupWithName =
           connectionGroupRepository.findByNameAndIsActive(
-              connectionGroupDTO.getName(), Boolean.TRUE);
+              connectionGroupDTO.getName().toLowerCase(), Boolean.TRUE);
       if (connectionGroupWithName.isPresent()) {
-        throw new IllegalArgumentException(
+        throw new CustomNodeException(
             "Connection Group Already Present with the given name " + connectionGroupDTO.getName());
       }
     }
     if (!connectionGroupDTO.getIsActive()) {
-      throw new IllegalArgumentException("Cant make the Connection Group Inactive");
+      throw new CustomNodeException("Cant make the Connection Group Inactive");
     }
   }
 
@@ -88,7 +91,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   private void deleteConnectionGroup(Optional<ConnectionGroup> connectionGroupOptional) {
     if (!connectionGroupOptional.isPresent()) {
-      throw new IllegalArgumentException("No Connection Group Present.");
+      throw new CustomNodeException("No Connection Group Present.");
     }
     ConnectionGroup connectionGroup = connectionGroupOptional.get();
     connectionGroup.setIsActive(Boolean.FALSE);
@@ -99,7 +102,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
   public ConnectionGroupDTO getConnectionGroup(Long id) {
     Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findById(id);
     if (!connectionGroupOptional.isPresent()) {
-      throw new IllegalArgumentException("No Connection Group Exists with given id");
+      throw new CustomNodeException("No Connection Group Exists with given id");
     }
     return connectionGroupConverter.convertFrom(connectionGroupOptional.get());
   }
@@ -108,7 +111,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
   public ConnectionGroupDTO getConnectionGroup(String name) {
     Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findByName(name);
     if (!connectionGroupOptional.isPresent()) {
-      throw new IllegalArgumentException("No Connection Group Exists with given name");
+      throw new CustomNodeException("No Connection Group Exists with given name");
     }
     return connectionGroupConverter.convertFrom(connectionGroupOptional.get());
   }
