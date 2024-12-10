@@ -10,9 +10,7 @@ import com.facets.cloud.node.connect.repository.VirtualNodeRepository;
 import com.facets.cloud.node.connect.service.ConnectionGroupService;
 import com.facets.cloud.node.connect.service.VirtualNodeService;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +47,8 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
   }
 
   private void validateNodes(VirtualNodeConnectionDTO virtualNodeConnectionDTO) {
-    List<String> names = getNames(virtualNodeConnectionDTO.getVirtualNodeDTO(), new ArrayList<>(), 0);
+    List<String> names =
+        getNames(virtualNodeConnectionDTO.getVirtualNodeDTO(), new ArrayList<>(), 0);
     List<VirtualNode> existingNodes =
         virtualNodeRepository.findByNameInAndIsActive(names, Boolean.TRUE);
     if (!CollectionUtils.isEmpty(existingNodes)) {
@@ -73,10 +72,8 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
     if (CollectionUtils.isEmpty(virtualNodeDTO.getVirtualNodeDTOList())) {
       return virtualNodeConverter.convertFrom(virtualNode);
     }
-    List<VirtualNodeDTO> uniqueChildren = virtualNodeDTO.getVirtualNodeDTOList()
-            .stream()
-            .distinct()
-            .collect(Collectors.toList());
+    List<VirtualNodeDTO> uniqueChildren =
+        virtualNodeDTO.getVirtualNodeDTOList().stream().distinct().collect(Collectors.toList());
     List<VirtualNodeDTO> childNodes =
         CollectionUtils.emptyIfNull(uniqueChildren)
             .stream()
@@ -101,11 +98,14 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
       throw new CustomNodeException("Inactive Virtual Node addition is not allowed.");
     }
     if (names.contains(virtualNodeDTO.getName().toLowerCase())) {
-      throw new CustomNodeException("Parent Node(" + virtualNodeDTO.getName().toLowerCase() + ") cannot be present in Children Nodes.");
+      throw new CustomNodeException(
+          "Parent Node("
+              + virtualNodeDTO.getName().toLowerCase()
+              + ") cannot be present in Children Nodes.");
     }
     names.add(virtualNodeDTO.getName().toLowerCase());
     if (!CollectionUtils.isEmpty(virtualNodeDTO.getVirtualNodeDTOList())) {
-      virtualNodeDTO.getVirtualNodeDTOList().forEach(node -> getNames(node, names, depth+1));
+      virtualNodeDTO.getVirtualNodeDTOList().forEach(node -> getNames(node, names, depth + 1));
     }
     return names;
   }
