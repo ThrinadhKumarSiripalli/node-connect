@@ -8,11 +8,13 @@ import com.facets.cloud.node.connect.repository.ConnectionGroupRepository;
 import com.facets.cloud.node.connect.service.ConnectionGroupService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Slf4j
 public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   private final ConnectionGroupRepository connectionGroupRepository;
@@ -21,6 +23,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public ConnectionGroupDTO addConnectionGroup(ConnectionGroupDTO connectionGroupDTO) {
+    log.info("add connection group request received with dto {}", connectionGroupDTO);
     validateConnectionGroupAddition(connectionGroupDTO);
     ConnectionGroup connectionGroup = connectionGroupConverter.convertTo(connectionGroupDTO);
     connectionGroup = connectionGroupRepository.save(connectionGroup);
@@ -44,6 +47,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public ConnectionGroupDTO updateConnectionGroup(ConnectionGroupDTO connectionGroupDTO) {
+    log.info("update connection group request received with dto {}", connectionGroupDTO);
     Optional<ConnectionGroup> connectionGroupOptional =
         connectionGroupRepository.findById(connectionGroupDTO.getId());
     validateConnectionGroupUpdation(connectionGroupDTO, connectionGroupOptional);
@@ -75,6 +79,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public Boolean activateConnectionGroup(Long id) {
+    log.info("activate connection group request received with id {}", id);
     Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findById(id);
     if (!connectionGroupOptional.isPresent()) {
       throw new CustomNodeException("No Connection Group Present for this given id " + id);
@@ -87,6 +92,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public Boolean deleteConnectionGroup(Long id) {
+    log.info("delete connection group request received with id {}", id);
     Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findById(id);
     deleteConnectionGroup(connectionGroupOptional);
     return true;
@@ -94,6 +100,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public Boolean deleteConnectionGroup(String name) {
+    log.info("delete connection group request received with name {}", name);
     Optional<ConnectionGroup> connectionGroupOptional =
         connectionGroupRepository.findByNameAndIsActive(name, Boolean.TRUE);
     deleteConnectionGroup(connectionGroupOptional);
@@ -111,6 +118,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public ConnectionGroupDTO getConnectionGroup(Long id, Boolean isActive) {
+    log.info("get connection group request received with id {}", id);
     Optional<ConnectionGroup> connectionGroupOptional;
     if (Boolean.TRUE.equals(isActive)) {
       connectionGroupOptional = connectionGroupRepository.findByIdAndIsActive(id, Boolean.TRUE);
@@ -125,6 +133,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
 
   @Override
   public ConnectionGroupDTO getConnectionGroup(String name, Boolean isActive) {
+    log.info("get connection group request received with name {}", name);
     Optional<ConnectionGroup> connectionGroupOptional;
     if (Boolean.TRUE.equals(isActive)) {
       connectionGroupOptional = connectionGroupRepository.findByNameAndIsActive(name, Boolean.TRUE);

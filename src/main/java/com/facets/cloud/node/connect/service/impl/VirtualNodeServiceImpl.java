@@ -13,12 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class VirtualNodeServiceImpl implements VirtualNodeService {
 
@@ -32,6 +34,7 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
   @Transactional
   public VirtualNodeConnectionDTO addVirtualNodes(
       VirtualNodeConnectionDTO virtualNodeConnectionDTO) {
+    log.info("add virtual node request received with dto {}", virtualNodeConnectionDTO);
     ConnectionGroupDTO connectionGroupDTO =
         connectionGroupService.getConnectionGroup(
             virtualNodeConnectionDTO.getConnectionGroupName(), Boolean.TRUE);
@@ -56,6 +59,9 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
 
   private VirtualNodeDTO persistVirtualNodes(
       Long connectionGroupId, Long reportsToVirtualNodeId, VirtualNodeDTO virtualNodeDTO) {
+    if (virtualNodeDTO == null) {
+      return null;
+    }
     VirtualNode virtualNode = virtualNodeConverter.convertTo(virtualNodeDTO);
     virtualNode.setConnectionGroupId(connectionGroupId);
     if (reportsToVirtualNodeId != null) {
@@ -69,7 +75,9 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
         persistVirtualNodes(
             connectionGroupId, virtualNode.getId(), virtualNodeDTO.getVirtualNodeDTOList());
     VirtualNodeDTO resultNodes = virtualNodeConverter.convertFrom(virtualNode);
-    resultNodes.setVirtualNodeDTOList(childVirtualNodes);
+    if (!CollectionUtils.isEmpty(childVirtualNodes)) {
+      resultNodes.setVirtualNodeDTOList(childVirtualNodes);
+    }
     return resultNodes;
   }
 
@@ -84,7 +92,9 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
     for (VirtualNodeDTO virtualNodeDTO : virtualNodeDTOList) {
       VirtualNodeDTO persistedNode =
           persistVirtualNodes(connectionGroupId, reportsToVirtualNodeId, virtualNodeDTO);
-      result.add(persistedNode);
+      if (virtualNodeDTO != null) {
+        result.add(persistedNode);
+      }
     }
     return result;
   }
