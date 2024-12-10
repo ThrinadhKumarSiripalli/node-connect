@@ -10,7 +10,9 @@ import com.facets.cloud.node.connect.repository.VirtualNodeRepository;
 import com.facets.cloud.node.connect.service.ConnectionGroupService;
 import com.facets.cloud.node.connect.service.VirtualNodeService;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
   private final ConnectionGroupService connectionGroupService;
 
   private final VirtualNodeConverter virtualNodeConverter;
+  private static final int MAX_DEPTH = 100;
 
   @Override
   @Transactional
@@ -46,7 +49,7 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
   }
 
   private void validateNodes(VirtualNodeConnectionDTO virtualNodeConnectionDTO) {
-    List<String> names = getNames(virtualNodeConnectionDTO.getVirtualNodeDTO(), new ArrayList<>());
+    List<String> names = getNames(virtualNodeConnectionDTO.getVirtualNodeDTO(), new ArrayList<>(), 0);
     List<VirtualNode> existingNodes =
         virtualNodeRepository.findByNameInAndIsActive(names, Boolean.TRUE);
     if (!CollectionUtils.isEmpty(existingNodes)) {
@@ -63,13 +66,19 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
     }
     VirtualNode virtualNode = virtualNodeConverter.convertTo(virtualNodeDTO);
     virtualNode.setConnectionGroupId(connectionGroupId);
-    virtualNode.setReportsToVirtualNodeId(reportsToVirtualNodeId);
+    if (reportsToVirtualNodeId != null) {
+      virtualNode.setReportsToVirtualNodeId(reportsToVirtualNodeId);
+    }
     VirtualNode savedNode = virtualNodeRepository.save(virtualNode);
     if (CollectionUtils.isEmpty(virtualNodeDTO.getVirtualNodeDTOList())) {
       return virtualNodeConverter.convertFrom(virtualNode);
     }
+    List<VirtualNodeDTO> uniqueChildren = virtualNodeDTO.getVirtualNodeDTOList()
+            .stream()
+            .distinct()
+            .collect(Collectors.toList());
     List<VirtualNodeDTO> childNodes =
-        CollectionUtils.emptyIfNull(virtualNodeDTO.getVirtualNodeDTOList())
+        CollectionUtils.emptyIfNull(uniqueChildren)
             .stream()
             .map(child -> persistVirtualNodeHierarchy(connectionGroupId, savedNode.getId(), child))
             .collect(Collectors.toList());
@@ -78,9 +87,12 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
     return resultNode;
   }
 
-  private List<String> getNames(VirtualNodeDTO virtualNodeDTO, List<String> names) {
+  private List<String> getNames(VirtualNodeDTO virtualNodeDTO, List<String> names, int depth) {
     if (virtualNodeDTO == null) {
       return names;
+    }
+    if (depth > MAX_DEPTH) {
+      throw new CustomNodeException("Node hierarchy is too deep. Maximum depth is " + MAX_DEPTH);
     }
     if (virtualNodeDTO.getName() == null) {
       throw new CustomNodeException("Name is Mandatory for all the virtual Nodes.");
@@ -88,9 +100,12 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
     if (Boolean.FALSE.equals(virtualNodeDTO.getIsActive())) {
       throw new CustomNodeException("Inactive Virtual Node addition is not allowed.");
     }
+    if (names.contains(virtualNodeDTO.getName().toLowerCase())) {
+      throw new CustomNodeException("Parent Node(" + virtualNodeDTO.getName().toLowerCase() + ") cannot be present in Children Nodes.");
+    }
     names.add(virtualNodeDTO.getName().toLowerCase());
     if (!CollectionUtils.isEmpty(virtualNodeDTO.getVirtualNodeDTOList())) {
-      virtualNodeDTO.getVirtualNodeDTOList().forEach(node -> getNames(node, names));
+      virtualNodeDTO.getVirtualNodeDTOList().forEach(node -> getNames(node, names, depth+1));
     }
     return names;
   }
