@@ -57,7 +57,6 @@ public class DatabaseConfig {
     factory.setPackagesToScan("com.facets.cloud.node.connect.model");
     factory.setDataSource(dataSource());
     factory.setJpaProperties(props);
-    //        factory.afterPropertiesSet();
 
     return factory;
   }

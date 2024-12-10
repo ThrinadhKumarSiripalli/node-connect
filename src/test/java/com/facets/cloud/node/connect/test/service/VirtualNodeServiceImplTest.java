@@ -30,7 +30,6 @@ public class VirtualNodeServiceImplTest {
 
   @Mock private VirtualNodeConverter virtualNodeConverter;
 
-  //    @Spy
   @InjectMocks private VirtualNodeServiceImpl virtualNodeService;
 
   @Before
