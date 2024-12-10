@@ -8,6 +8,8 @@ public interface ConnectionGroupService {
 
   ConnectionGroupDTO updateConnectionGroup(ConnectionGroupDTO connectionGroupDTO);
 
+  Boolean activateConnectionGroup(Long id);
+
   Boolean deleteConnectionGroup(Long id);
 
   Boolean deleteConnectionGroup(String name);

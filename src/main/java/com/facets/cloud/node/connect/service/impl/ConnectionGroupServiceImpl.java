@@ -35,8 +35,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
       throw new CustomNodeException("Connection Group Name is Mandatory.");
     }
     Optional<ConnectionGroup> connectionGroupOptional =
-        connectionGroupRepository.findByNameAndIsActive(
-            connectionGroupDTO.getName().toLowerCase(), Boolean.TRUE);
+        connectionGroupRepository.findByName(connectionGroupDTO.getName().toLowerCase());
     if (connectionGroupOptional.isPresent()) {
       throw new CustomNodeException(
           "Connection Group already exists with Name: " + connectionGroupDTO.getName());
@@ -49,6 +48,7 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
         connectionGroupRepository.findById(connectionGroupDTO.getId());
     validateConnectionGroupUpdation(connectionGroupDTO, connectionGroupOptional);
     ConnectionGroup connectionGroup = connectionGroupOptional.get();
+    connectionGroup.setName(connectionGroupDTO.getName().toLowerCase());
     connectionGroup = connectionGroupRepository.save(connectionGroup);
     return connectionGroupConverter.convertFrom(connectionGroup);
   }
@@ -62,16 +62,27 @@ public class ConnectionGroupServiceImpl implements ConnectionGroupService {
     ConnectionGroup connectionGroup = connectionGroupOptional.get();
     if (!connectionGroup.getName().equalsIgnoreCase(connectionGroupDTO.getName())) {
       Optional<ConnectionGroup> connectionGroupWithName =
-          connectionGroupRepository.findByNameAndIsActive(
-              connectionGroupDTO.getName().toLowerCase(), Boolean.TRUE);
+          connectionGroupRepository.findByName(connectionGroupDTO.getName().toLowerCase());
       if (connectionGroupWithName.isPresent()) {
         throw new CustomNodeException(
             "Connection Group Already Present with the given name " + connectionGroupDTO.getName());
       }
     }
-    if (!connectionGroupDTO.getIsActive()) {
+    if (Boolean.FALSE.equals(connectionGroupDTO.getIsActive())) {
       throw new CustomNodeException("Cant make the Connection Group Inactive");
     }
+  }
+
+  @Override
+  public Boolean activateConnectionGroup(Long id) {
+    Optional<ConnectionGroup> connectionGroupOptional = connectionGroupRepository.findById(id);
+    if (!connectionGroupOptional.isPresent()) {
+      throw new CustomNodeException("No Connection Group Present for this given id " + id);
+    }
+    ConnectionGroup connectionGroup = connectionGroupOptional.get();
+    connectionGroup.setIsActive(Boolean.TRUE);
+    connectionGroupRepository.save(connectionGroup);
+    return true;
   }
 
   @Override

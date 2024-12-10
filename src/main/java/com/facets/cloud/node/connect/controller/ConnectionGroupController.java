@@ -45,6 +45,12 @@ public class ConnectionGroupController {
     return connectionGroupService.updateConnectionGroup(connectionGroupDTO);
   }
 
+  @PutMapping(value = "/activate", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public Boolean activateConnectionGroup(@RequestParam Long id) {
+    return connectionGroupService.activateConnectionGroup(id);
+  }
+
   @DeleteMapping(value = "", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public Boolean deleteConnectionGroup(@RequestParam Long id) {
