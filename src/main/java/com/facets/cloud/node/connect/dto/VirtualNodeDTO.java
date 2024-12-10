@@ -1,6 +1,8 @@
 package com.facets.cloud.node.connect.dto;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VirtualNodeDTO {
   private Long id;
   private String name;

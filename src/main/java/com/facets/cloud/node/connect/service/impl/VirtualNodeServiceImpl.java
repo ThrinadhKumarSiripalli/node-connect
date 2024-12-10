@@ -11,6 +11,7 @@ import com.facets.cloud.node.connect.service.ConnectionGroupService;
 import com.facets.cloud.node.connect.service.VirtualNodeService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -108,5 +109,31 @@ public class VirtualNodeServiceImpl implements VirtualNodeService {
       virtualNodeDTO.getVirtualNodeDTOList().forEach(node -> getNames(node, names, depth + 1));
     }
     return names;
+  }
+
+
+  @Override
+  public VirtualNodeDTO getVirtualNode(String name) {
+    Optional<VirtualNode> virtualNodeOptional = virtualNodeRepository.findByNameAndIsActive(name.toLowerCase(), Boolean.TRUE);
+    if (!virtualNodeOptional.isPresent()) {
+      throw new CustomNodeException("no Virtual Node present with the given name: "+ name);
+    }
+    return virtualNodeConverter.convertFrom(virtualNodeOptional.get());
+  }
+
+  @Override
+  public boolean deleteVirtualNode(String name) {
+    Optional<VirtualNode> virtualNodeOptional = virtualNodeRepository.findByNameAndIsActive(name.toLowerCase(), Boolean.TRUE);
+    if (!virtualNodeOptional.isPresent()) {
+      throw new CustomNodeException("no Virtual Node present with the given name: "+ name);
+    }
+    VirtualNode virtualNode = virtualNodeOptional.get();
+    List<VirtualNode> childNodes = virtualNodeRepository.findByReportsToVirtualNodeIdAndIsActive(virtualNode.getId(), Boolean.TRUE);
+    if (!CollectionUtils.isEmpty(childNodes)) {
+      throw new CustomNodeException("There are Child Nodes attached to it cant delete.");
+    }
+    virtualNode.setIsActive(Boolean.TRUE);
+    virtualNodeRepository.save(virtualNode);
+    return true;
   }
 }
